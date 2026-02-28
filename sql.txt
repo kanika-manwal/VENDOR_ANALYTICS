@@ -1,3 +1,5 @@
+mysql> CREATE DATABASE vendor_analysis;
+mysql> USE vendor_analysis;
 mysql> LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 9.5/Uploads/sales.csv'
     -> INTO TABLE sales
     -> FIELDS TERMINATED BY ','
@@ -198,4 +200,5 @@ mysql> SELECT *
     -> FIELDS TERMINATED BY ','
     -> ENCLOSED BY '"'
     -> LINES TERMINATED BY '\n';
+
 Query OK, 136 rows affected (0.492 sec)
