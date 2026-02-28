@@ -1,30 +1,143 @@
-#  Vendor Performance Data Analytics Platform
+ Vendor Performance Analytics Platform
 
-##  Project Overview
-End-to-end data analytics platform analyzing vendor performance using SQL, Python, and Power BI.
-The project focuses on evaluating vendor efficiency, delivery performance, and operational trends.
+## 📌 Overview
 
-##  Tools & Technologies
-- SQL (SQLite)
-- Python (Pandas, Matplotlib)
-- Power BI
+This project analyzes large-scale vendor transactional data to evaluate profitability, identify underperforming vendors, and support data-driven decision-making.
 
+The solution integrates **SQL for data engineering**, **Python for statistical analysis and machine learning**, and **Power BI for interactive visualization**.
 
-##  Dataset
-- 300K+ vendor transaction records
-- Database: inventory.db
+Total data processed: **15+ million records**
 
-##  Key Analysis
-- Vendor-wise delivery performance
-- Efficiency and utilization ratios
-- Trend analysis and bottleneck identification
+---
 
+## 🎯 Business Objective
 
-##  Key Insights
-- Identified underperforming vendors impacting delivery timelines
-- Highlighted efficiency gaps across vendor categories
-- Enabled operations teams to take data-driven actions
+Retail and wholesale businesses must optimize vendor relationships to improve profitability.
 
-##  Conclusion
-This project demonstrates end-to-end analytics — from data ingestion and cleaning to visualization
-and business insight generation.
+This project aims to:
+
+* Identify high and low-performing vendors
+* Analyze sales vs purchase profitability
+* Detect margin inefficiencies
+* Predict vendor performance categories
+* Support operational decision-making
+
+---
+
+## 🛠️ Tech Stack
+
+* **MySQL** – Data cleaning, indexing, aggregation
+* **Python** – Pandas, NumPy, Matplotlib, Seaborn
+* **Scikit-learn** – Random Forest Classification
+* **Power BI** – Interactive dashboard
+
+---
+
+## ⚙️ Project Workflow
+
+### 1️⃣ Data Engineering (MySQL)
+
+* Imported 15M+ sales and purchase records
+* Created indexed tables for optimized performance
+* Built summary tables:
+
+  * `sales_summary`
+  * `purchase_summary`
+  * `vendor_performance`
+
+### KPIs Generated:
+
+* Total Sales
+* Total Purchase
+* Gross Profit
+* Profit Margin
+
+---
+
+### 2️⃣ Exploratory Data Analysis (Python)
+
+* Distribution analysis of vendor sales
+* Profitability comparison
+* Correlation analysis
+* Sales vs Profit scatter visualization
+
+---
+
+### 3️⃣ Hypothesis Testing
+
+Performed statistical t-test to evaluate:
+
+> Whether high-sales vendors have significantly different profit margins compared to low-sales vendors.
+
+---
+
+### 4️⃣ Machine Learning Model
+
+Implemented a **Random Forest Classifier** to predict vendor performance category:
+
+* High Performer
+* Medium Performer
+* Low Performer
+
+Model Accuracy: **~71%**
+
+The model showed strong performance in identifying low-performing vendors.
+
+---
+
+### 5️⃣ Power BI Dashboard
+
+The interactive dashboard includes:
+
+* KPI cards (Sales, Purchase, Profit, Margin)
+* Top Vendors by Sales
+* Purchase Contribution %
+* Low Performing Vendors
+* Sales vs Profit Analysis
+* Performance Category Filtering
+
+---
+
+## 📈 Key Insights
+
+* A small group of vendors drives majority of revenue
+* Some vendors generate high sales but low margins
+* Predictive modeling helps proactively identify risk vendors
+* Profitability strongly correlates with purchase cost control
+
+---
+
+## 🚀 Business Impact
+
+This solution enables:
+
+* Vendor prioritization
+* Risk detection
+* Cost optimization
+* Predictive performance monitoring
+
+---
+
+## 📂 Repository Structure
+
+```
+VENDOR_ANALYTICS/
+│
+├── notebooks/
+├── scripts/
+├── DASHBOARD.pbix
+├── dashboard.png
+├── README.md
+└── .gitignore
+```
+
+---
+
+## 👩‍💻 Author
+
+**Kanika**
+BCA – Artificial Intelligence & Data Science
+Focused on Data Analytics, Machine Learning & Business Intelligence
+
+---
+
