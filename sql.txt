@@ -1,0 +1,201 @@
+mysql> LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 9.5/Uploads/sales.csv'
+    -> INTO TABLE sales
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\n'
+    -> IGNORE 1 ROWS;
+Query OK, 12825363 rows affected (24 min 15.304 sec)
+Records: 12825363  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> SELECT COUNT(*) FROM sales;
++----------+
+| COUNT(*) |
++----------+
+| 12825363 |
++----------+
+1 row in set (24.352 sec)
+mysql> CREATE INDEX idx_vendor ON sales(VendorNo);
+Query OK, 0 rows affected (3 min 16.064 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_brand ON sales(Brand);
+Query OK, 0 rows affected (3 min 13.306 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_inventory ON sales(InventoryId);
+Query OK, 0 rows affected (7 min 2.126 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE sales_summary AS
+    -> SELECT
+    ->     VendorNo,
+    ->     VendorName,
+    ->     SUM(SalesQuantity) AS total_units_sold,
+    ->     SUM(SalesDollars) AS total_sales
+    -> FROM sales
+    -> GROUP BY VendorNo, VendorName;
+Query OK, 130 rows affected (8 min 4.410 sec)
+Records: 130  Duplicates: 0  Warnings: 0
+
+mysql> SELECT COUNT(*) FROM sales_summary;
++----------+
+| COUNT(*) |
++----------+
+|      130 |
++----------+
+1 row in set (0.028 sec)
+mysql> CREATE TABLE purchases (
+    ->     InventoryId VARCHAR(50),
+    ->     Store INT,
+    ->     Brand INT,
+    ->     Description VARCHAR(255),
+    ->     Size VARCHAR(50),
+    ->     VendorNumber INT,
+    ->     VendorName VARCHAR(255),
+    ->     PONumber INT,
+    ->     PODate VARCHAR(50),
+    ->     ReceivingDate VARCHAR(50),
+    ->     InvoiceDate VARCHAR(50),
+    ->     PayDate VARCHAR(50),
+    ->     PurchasePrice DECIMAL(10,2),
+    ->     Quantity INT,
+    ->     Dollars DECIMAL(15,2),
+    ->     Classification INT
+    -> );
+Query OK, 0 rows affected (0.799 sec)
+
+mysql> LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 9.5/Uploads/purchases.csv'
+    -> INTO TABLE purchases
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\n'
+    -> IGNORE 1 ROWS;
+Query OK, 2372474 rows affected (55 min 34.347 sec)
+Records: 2372474  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> CREATE TABLE purchase_summary AS
+    -> SELECT
+    ->     VendorNumber,
+    ->     VendorName,
+    ->     SUM(Quantity) AS total_units_purchased,
+    ->     SUM(Dollars) AS total_purchase,
+    ->     SUM(PurchasePrice * Quantity) AS total_cost
+    -> FROM purchases
+    -> GROUP BY VendorNumber, VendorName;
+Query OK, 129 rows affected (1 min 1.996 sec)
+Records: 129  Duplicates: 0  Warnings: 0
+
+mysql> SELECT COUNT(*) FROM purchase_summary;
++----------+
+| COUNT(*) |
++----------+
+|      129 |
++----------+
+1 row in set (0.031 sec)
+
+mysql> CREATE TABLE vendor_performance AS
+    -> SELECT
+    ->     s.VendorNo,
+    ->     s.VendorName,
+    ->     s.total_sales,
+    ->     p.total_purchase,
+    ->     (s.total_sales - p.total_purchase) AS gross_profit
+    -> FROM sales_summary s
+    -> LEFT JOIN purchase_summary p
+    -> ON s.VendorNo = p.VendorNumber;
+Query OK, 136 rows affected (1.166 sec)
+Records: 136  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE vendor_performance
+    -> ADD COLUMN profit_margin DECIMAL(10,2);
+Query OK, 0 rows affected (0.602 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> UPDATE vendor_performance
+    -> SET profit_margin = (gross_profit / total_sales) * 100;
+Query OK, 133 rows affected, 132 warnings (0.163 sec)
+Rows matched: 136  Changed: 133  Warnings: 132
+
+mysql> SELECT * FROM vendor_performance
+    -> ORDER BY total_sales DESC
+    -> LIMIT 10;
++----------+-----------------------------+-------------+----------------+--------------+---------------+
+| VendorNo | VendorName                  | total_sales | total_purchase | gross_profit | profit_margin |
++----------+-----------------------------+-------------+----------------+--------------+---------------+
+|     3960 | DIAGEO NORTH AMERICA INC    | 68742416.99 |    50959796.85 |  17782620.14 |         25.87 |
+|     4425 | MARTIGNETTI COMPANIES       | 40992395.93 |       40216.11 |  40952179.82 |         99.90 |
+|     4425 | MARTIGNETTI COMPANIES       | 40992395.93 |    27821473.91 |  13170922.02 |         32.13 |
+|    17035 | PERNOD RICARD USA           | 32281247.95 |    24124091.56 |   8157156.39 |         25.27 |
+|    12546 | JIM BEAM BRANDS COMPANY     | 31906320.54 |    24203151.05 |   7703169.49 |         24.14 |
+|      480 | BACARDI USA INC             | 25014556.89 |    17624378.72 |   7390178.17 |         29.54 |
+|     1392 | CONSTELLATION BRANDS INC    | 24469172.93 |    15573917.90 |   8895255.03 |         36.35 |
+|     3252 | E & J GALLO WINERY          | 18556085.61 |    12289608.09 |   6266477.52 |         33.77 |
+|     1128 | BROWN-FORMAN CORP           | 18478557.47 |    13529433.08 |   4949124.39 |         26.78 |
+|     9165 | ULTRA BEVERAGE COMPANY LLP  | 17822938.45 |    13210613.93 |   4612324.52 |         25.88 |
++----------+-----------------------------+-------------+----------------+--------------+---------------+
+10 rows in set (0.067 sec)
+
+mysql> SELECT COUNT(*) FROM purchase_summary;
++----------+
+| COUNT(*) |
++----------+
+|      129 |
++----------+
+1 row in set (0.477 sec)
+mysql> UPDATE vendor_performance
+    -> SET profit_margin = (gross_profit / total_sales) * 100;
+Query OK, 0 rows affected, 132 warnings (0.019 sec)
+Rows matched: 136  Changed: 0  Warnings: 132
+
+mysql> SELECT COUNT(*) FROM vendor_performance;
++----------+
+| COUNT(*) |
++----------+
+|      136 |
++----------+
+1 row in set (0.028 sec)
+
+mysql> SELECT *
+    -> FROM vendor_performance
+    -> ORDER BY total_sales DESC
+    -> LIMIT 10;
++----------+-----------------------------+-------------+----------------+--------------+---------------+
+| VendorNo | VendorName                  | total_sales | total_purchase | gross_profit | profit_margin |
++----------+-----------------------------+-------------+----------------+--------------+---------------+
+|     3960 | DIAGEO NORTH AMERICA INC    | 68742416.99 |    50959796.85 |  17782620.14 |         25.87 |
+|     4425 | MARTIGNETTI COMPANIES       | 40992395.93 |       40216.11 |  40952179.82 |         99.90 |
+|     4425 | MARTIGNETTI COMPANIES       | 40992395.93 |    27821473.91 |  13170922.02 |         32.13 |
+|    17035 | PERNOD RICARD USA           | 32281247.95 |    24124091.56 |   8157156.39 |         25.27 |
+|    12546 | JIM BEAM BRANDS COMPANY     | 31906320.54 |    24203151.05 |   7703169.49 |         24.14 |
+|      480 | BACARDI USA INC             | 25014556.89 |    17624378.72 |   7390178.17 |         29.54 |
+|     1392 | CONSTELLATION BRANDS INC    | 24469172.93 |    15573917.90 |   8895255.03 |         36.35 |
+|     3252 | E & J GALLO WINERY          | 18556085.61 |    12289608.09 |   6266477.52 |         33.77 |
+|     1128 | BROWN-FORMAN CORP           | 18478557.47 |    13529433.08 |   4949124.39 |         26.78 |
+|     9165 | ULTRA BEVERAGE COMPANY LLP  | 17822938.45 |    13210613.93 |   4612324.52 |         25.88 |
++----------+-----------------------------+-------------+----------------+--------------+---------------+
+10 rows in set (0.015 sec)
+
+mysql> SELECT COUNT(*) FROM purchase_summary;
++----------+
+| COUNT(*) |
++----------+
+|      129 |
++----------+
+1 row in set (0.469 sec)
+
+mysql> SELECT COUNT(*) FROM vendor_performance;
++----------+
+| COUNT(*) |
++----------+
+|      136 |
++----------+
+1 row in set (0.492 sec)
+
+mysql> SELECT *
+    -> FROM vendor_performance
+    -> INTO OUTFILE 'C:/ProgramData/MySQL/MySQL Server 9.5/Uploads/vendor_performance.csv'
+    -> FIELDS TERMINATED BY ','
+    -> ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\n';
+Query OK, 136 rows affected (0.492 sec)
